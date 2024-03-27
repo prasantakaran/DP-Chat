@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "878020753228",
+    "project_id": "dpchat-51483",
+    "storage_bucket": "dpchat-51483.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878020753228:android:6922d5d583334a96e181e9",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "878020753228-0vkk1mhvg3i2sitsaritpsk4he6mq4b8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6EU0EBTphCR4_aMZcng4ZP51Xje_j16g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878020753228-0vkk1mhvg3i2sitsaritpsk4he6mq4b8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
