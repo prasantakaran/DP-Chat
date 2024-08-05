@@ -1,16 +1,14 @@
+// ignore_for_file: avoid_unnecessary_containers, prefer_const_constructors, must_be_immutable, no_logic_in_create_state, use_key_in_widget_constructors, prefer_interpolation_to_compose_strings, await_only_futures, use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/pages/User_Details_Model.dart';
-import 'package:flutter_application_2/pages/loadingdialog.dart';
-import 'package:flutter_application_2/util/myurl.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_application_2/ModelClass/User_Details_Model.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
 class ViewProfile extends StatefulWidget {
   // const ViewProfile({super.key});
@@ -26,90 +24,89 @@ class _ViewProfileState extends State<ViewProfile> {
   _ViewProfileState(this.detailobj);
   late SharedPreferences sp;
 
-  Future getChangeImg(File uphoto, String id) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return const LoadingDialog();
-      },
-    );
+  // Future getChangeImg(File uphoto, String id) async {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) {
+  //       return const LoadingDialog();
+  //     },
+  //   );
 
-    try {
-      var request = http.MultipartRequest(
-          "POST", Uri.parse(Myurl.fullurl + "image_change.php"));
+  //   try {
+  //     var request = http.MultipartRequest(
+  //         "POST", Uri.parse(Myurl.fullurl + "image_change.php"));
 
-      request.files.add(await http.MultipartFile.fromBytes(
-          'image', uphoto.readAsBytesSync(),
-          filename: uphoto.path.split("/").last));
-      request.fields['uid'] = id;
+  //     request.files.add(await http.MultipartFile.fromBytes(
+  //         'image', uphoto.readAsBytesSync(),
+  //         filename: uphoto.path.split("/").last));
+  //     request.fields['uid'] = id;
 
-      var response = await request.send();
-      var responded = await http.Response.fromStream(response);
+  //     var response = await request.send();
+  //     var responded = await http.Response.fromStream(response);
 
-      var jsondata = jsonDecode(responded.body);
-      if (jsondata['status'] == 'true') {
-        sp = await SharedPreferences.getInstance();
+  //     var jsondata = jsonDecode(responded.body);
+  //     if (jsondata['status'] == 'true') {
+  //       sp = await SharedPreferences.getInstance();
 
-        detailobj.photo = jsondata['imgtitle'];
-        sp.setString("photo", detailobj.photo);
+  //       detailobj.photo = jsondata['imgtitle'];
+  //       sp.setString("photo", detailobj.photo!);
 
-        setState(() {});
+  //       setState(() {});
 
-        Navigator.pop(context);
+  //       Navigator.pop(context);
 
-        Fluttertoast.showToast(
-          gravity: ToastGravity.CENTER,
-          msg: jsondata['msg'],
-        );
-      } else {
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
-        Fluttertoast.showToast(
-          gravity: ToastGravity.CENTER,
-          msg: jsondata['msg'],
-        );
-      }
-    } catch (e) {
-      Navigator.pop(context);
-      Fluttertoast.showToast(
-        gravity: ToastGravity.CENTER,
-        msg: e.toString(),
-      );
-    }
-  }
+  //       Fluttertoast.showToast(
+  //         gravity: ToastGravity.CENTER,
+  //         msg: jsondata['msg'],
+  //       );
+  //     } else {
+  //       // ignore: use_build_context_synchronously
+  //       Navigator.pop(context);
+  //       Fluttertoast.showToast(
+  //         gravity: ToastGravity.CENTER,
+  //         msg: jsondata['msg'],
+  //       );
+  //     }
+  //   } catch (e) {
+  //     Navigator.pop(context);
+  //     Fluttertoast.showToast(
+  //       gravity: ToastGravity.CENTER,
+  //       msg: e.toString(),
+  //     );
+  //   }
+  // }
 
-  Future deleteImage(String uid) async {
-    Map data = {'uid': uid};
-    sp = await SharedPreferences.getInstance();
-    // ignore: use_build_context_synchronously
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return const LoadingDialog();
-      },
-    );
-    try {
-      var res = await http.post(
-          Uri.http(Myurl.mainurl, Myurl.suburl + "image_delete.php"),
-          body: data);
-      var jsondata = jsonDecode(res.body);
-      if (jsondata['status'] == true) {
-        Navigator.pop(context);
-        print("Successfully Remove");
-        setState(() {
-          detailobj.photo = jsondata["imgtitle"];
-          sp.setString("photo", jsondata["imgtitle"]);
-        });
-        Navigator.pop(context);
-      }
-      setState(() {});
-    } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
-      print(e.toString());
-    }
-  }
+  // Future deleteImage(String uid) async {
+  //   Map data = {'uid': uid};
+  //   sp = await SharedPreferences.getInstance();
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) {
+  //       return const LoadingDialog();
+  //     },
+  //   );
+  //   try {
+  //     var res = await http.post(
+  //         Uri.http(Myurl.mainurl, Myurl.suburl + "image_delete.php"),
+  //         body: data);
+  //     var jsondata = jsonDecode(res.body);
+  //     if (jsondata['status'] == true) {
+  //       Navigator.pop(context);
+  //       print("Successfully Remove");
+  //       setState(() {
+  //         detailobj.photo = jsondata["imgtitle"];
+  //         sp.setString("photo", jsondata["imgtitle"]);
+  //       });
+  //       Navigator.pop(context);
+  //     }
+  //     setState(() {});
+  //   } catch (e) {
+  //     Fluttertoast.showToast(msg: e.toString());
+  //     print(e.toString());
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +117,7 @@ class _ViewProfileState extends State<ViewProfile> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(detailobj.name),
+            Text(detailobj.name!),
             IconButton(
                 onPressed: () {
                   showModalBottomSheet(
@@ -150,13 +147,13 @@ class _ViewProfileState extends State<ViewProfile> {
                           // borderRadius: BorderRadius.circular(35),
                           image: DecorationImage(
                               image: NetworkImage(
-                            Myurl.fullurl + Myurl.imageurl + detailobj.photo,
+                            detailobj.photo!,
                           )
                               // fit: BoxFit.fill,
                               )),
                     ),
                   )
-                : Center(child: Text(detailobj.name)),
+                : Center(child: Text(detailobj.name!)),
           ),
         ),
       ),
@@ -188,7 +185,7 @@ class _ViewProfileState extends State<ViewProfile> {
                         IconButton(
                           onPressed: () {
                             Navigator.pop(context);
-                            deleteImage(detailobj.uid);
+                            // deleteImage(detailobj.uid!);
                           },
                           icon: Icon(
                             Icons.delete,
@@ -216,9 +213,9 @@ class _ViewProfileState extends State<ViewProfile> {
             children: [
               InkWell(
                 onTap: () {
-                  takephoto(ImageSource.gallery).whenComplete(() {
-                    getChangeImg(pickedfile!, detailobj.uid);
-                  });
+                  // takephoto(ImageSource.gallery).whenComplete(() {
+                  //   getChangeImg(pickedfile!, detailobj.uid!);
+                  // });
                 },
                 child: Container(
                   child: Column(
@@ -248,9 +245,9 @@ class _ViewProfileState extends State<ViewProfile> {
               ),
               InkWell(
                 onTap: () {
-                  takephoto(ImageSource.camera).whenComplete(() {
-                    getChangeImg(pickedfile!, detailobj.uid);
-                  });
+                  // takephoto(ImageSource.camera).whenComplete(() {
+                  //   getChangeImg(pickedfile!, detailobj.uid!);
+                  // });
                 },
                 child: Container(
                   child: Column(

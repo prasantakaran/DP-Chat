@@ -1,17 +1,15 @@
-const { log } = require('console');
-const express=require('express');
-// var http=require("http");///extra
-const app=express();
-const PORT=process.env.PORT || 5000;
-const server=app.listen(PORT,()=>
-{
-    console.log('server is started on',PORT);
-});
-const io=require('socket.io')(server);
+const express = require("express");
+var http = require("http");
+const app = express();
+const port = process.env.PORT || 5000;
+var server = http.createServer(app);
+var io = require("socket.io")(server);
 
-var client={};
+//middlewre
+app.use(express.json());
+var clients = {};
 io.on('connection', (socket)=>{
-    console.log('connected successfully',socket.id);
+    console.log('connected',socket.id);
     socket.on("dashboard",(id)=>{
         console.log(id); 
         client[id]=socket;
@@ -27,26 +25,3 @@ io.on('connection', (socket)=>{
     client[tergetid].emit('message-recived',data);
     });
 });
-
-
-
-
-// const express=require("express");
-// var http=require("http");
-// const app=express();
-// const port=process.env.PORT || 5000;
-// var server=http.createServer(app);
-// var io=require("socket.io")(server);
-
-// app.use(express.json());
-// // app.use(cors());
-// io.on("connection",(Socket)=>{
-//     console.log("connceted");
-//     console.log(Socket.id,"has joined");
-//     Socket.on("/test",(msg)=>{
-//         console.log(msg);
-//     })
-// });
-// server.listen(port,"0.0.0.0",()=>{
-//     console.log("server started");
-// });

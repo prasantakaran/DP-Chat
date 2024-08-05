@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 
 class PinDialog extends StatefulWidget {
   int otp;
@@ -32,7 +31,7 @@ class _PinDialogState extends State<PinDialog> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ))
           ],
-          title: Text(
+          title: const Text(
             "OTP",
             style: const TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w400, color: Colors.black),

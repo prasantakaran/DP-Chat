@@ -1,9 +1,9 @@
+// ignore_for_file: implementation_imports, unnecessary_import, no_logic_in_create_state, must_be_immutable, use_key_in_widget_constructors
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:flutter_application_2/pages/User_Details_Model.dart';
-import 'package:flutter_application_2/util/myurl.dart';
+import 'package:flutter_application_2/ModelClass/User_Details_Model.dart';
 
 class ShowContactImage extends StatefulWidget {
   // const ShowContactImage({super.key});
@@ -41,7 +41,7 @@ class _ShowContactImageState extends State<ShowContactImage> {
           maxScale: 5.0,
           minScale: 0.01,
           child: CachedNetworkImage(
-            imageUrl: Myurl.fullurl + Myurl.imageurl + user.photo,
+            imageUrl: user.photo!,
             placeholder: (context, url) => const CircularProgressIndicator(),
             imageBuilder: (context, imageProvider) {
               return Padding(

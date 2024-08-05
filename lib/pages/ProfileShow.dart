@@ -1,14 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:flutter_application_2/pages/Individual_Chat_Page.dart';
-import 'package:flutter_application_2/pages/Profile_Chat_Screen.dart';
-import 'package:flutter_application_2/pages/User_Details_Model.dart';
-import 'package:flutter_application_2/pages/User_Media.dart';
+import 'package:flutter_application_2/pages/ChatsPages/Individual_Chat_Page.dart';
+import 'package:flutter_application_2/ModelClass/User_Details_Model.dart';
 import 'package:flutter_application_2/pages/User_Profile.dart';
-import 'package:flutter_application_2/util/myurl.dart';
 import 'package:photo_view/photo_view.dart';
 
 class UserProflieShow extends StatelessWidget {
@@ -40,7 +35,7 @@ class UserProflieShow extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                         appBar: AppBar(
                           title: Text(
-                            user.name,
+                            user.name!,
                             style: TextStyle(letterSpacing: 0.4),
                           ),
                           elevation: 0.5,
@@ -53,9 +48,7 @@ class UserProflieShow extends StatelessWidget {
                                 ? PhotoView(
                                     maxScale: 4.0,
                                     minScale: 0.1,
-                                    imageProvider: NetworkImage(Myurl.fullurl +
-                                        Myurl.imageurl +
-                                        user.photo))
+                                    imageProvider: NetworkImage(user.photo!))
                                 : const Center(
                                     child: Text(
                                       "No image",
@@ -78,8 +71,7 @@ class UserProflieShow extends StatelessWidget {
                             MediaQuery.of(context).size.height * .50),
                         child: CircleAvatar(
                           radius: 120,
-                          backgroundImage: NetworkImage(
-                              Myurl.fullurl + Myurl.imageurl + user.photo),
+                          backgroundImage: NetworkImage(user.photo!),
                         ),
                       )
                     : Container(
@@ -121,7 +113,7 @@ class UserProflieShow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  user.name,
+                  user.name!,
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:flutter_application_2/pages/User_Details_Model.dart';
-import 'package:flutter_application_2/pages/chat_information.dart';
-import 'package:flutter_application_2/util/myurl.dart';
+import 'package:flutter_application_2/ModelClass/User_Details_Model.dart';
 
 class View_Media extends StatefulWidget {
   // const View_Media({super.key});

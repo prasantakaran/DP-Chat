@@ -1,24 +1,20 @@
-import 'dart:convert';
-import 'dart:io';
+// ignore_for_file: prefer_const_constructors
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:flutter_application_2/pages/Individual_Chat_Page.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_application_2/Controller/ChatController.dart';
+import 'package:flutter_application_2/Controller/Contact_Controller.dart';
+import 'package:flutter_application_2/main.dart';
+import 'package:flutter_application_2/pages/ChatsPages/Individual_Chat_Page.dart';
 import 'package:flutter_application_2/pages/ProfileShow.dart';
-import 'package:flutter_application_2/pages/Show_Contact_image.dart';
-import 'package:flutter_application_2/pages/User_Details_Model.dart';
-import 'package:flutter_application_2/util/myurl.dart';
-import 'package:flutter_contacts/contact.dart';
-import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:flutter_application_2/ModelClass/User_Details_Model.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
 
 class ContactAccess extends StatefulWidget {
   const ContactAccess({super.key});
@@ -28,348 +24,293 @@ class ContactAccess extends StatefulWidget {
 }
 
 class _ContactAccessState extends State<ContactAccess> {
-  Icon searchicon = Icon(Icons.search);
-  List<Details> searchname = [];
-  Widget appbartitle = Column(
-    children: [
-      Text("Contacts"),
-      // Text("235contacts"),
-    ],
-  );
-  List<Contact> contacts = []; //for storing All Contact
-  List<String> phno = []; //for storing PhoneNumber
-  List<String> contactname = []; //for storing Name
-  List<Details> userlist = []; //for storing All UserDetails
-  bool permissionDenied = false;
-  final String apidata = "All_Data_fetch.php";
-  bool open = false;
-  bool notopen = false;
+  // List<Details> userlist = [];
+  List<Details> filtedContacts = [];
+  final _searchController = TextEditingController();
+  bool isSearch = false;
+  final ContactController _contactController = Get.put(ContactController());
+  MessageController msgControler = Get.put(MessageController());
 
-  Future getUserDetails() async {
-    try {
-      var response =
-          await http.get(Uri.http(Myurl.mainurl, Myurl.suburl + apidata));
-      var jsondata = jsonDecode(response.body.toString());
-      // String filecatch = "";
-      // var dir = getTemporaryDirectory();
-      // File file = new File(dir);
-      if (jsondata['status'] == true) {
-        userlist.clear();
-        searchname.clear();
-        for (int i = 0; i < jsondata["data"].length; i++) {
-          String phone = jsondata['data'][i]['phone'];
-          int index = phno.indexOf(phone);
-          if (index != -1) {
-            Details userdata = Details(
-                contactname[index],
-                jsondata['data'][i]['email'],
-                jsondata['data'][i]['ubio'],
-                jsondata['data'][i]['uphoto'],
-                jsondata['data'][i]['phone'],
-                jsondata['data'][i]['uid']);
+  // Future<List<Details>> getUserDetails() async {
+  //   try {
+  //     // Reference to Firestore
+  //     var firestore = FirebaseFirestore.instance;
+  //     // Fetching user data from the 'users' collection
+  //     var snapshot = await firestore.collection('users').get();
+  //     var docs = snapshot.docs;
 
-            setState(() {
-              userlist.add(userdata);
-              searchname.add(userdata);
-            });
-          }
-        }
-      } else {
-        Fluttertoast.showToast(msg: jsondata["msg"]);
-      }
-      return userlist;
-    } catch (e) {
-      Fluttertoast.showToast(msg: e.toString());
-    }
-  }
+  //     if (docs.isNotEmpty) {
+  //       userlist.clear();
+
+  //       for (var doc in docs) {
+  //         var data = doc.data();
+  //         String phone = data['phone'] ?? ''; // Ensure phone is not null
+  //         int index = _contactController.phno.indexOf(phone);
+
+  //         if (index != -1) {
+  //           Details userdata = Details(
+  //             name: _contactController.contactname[index].toString(),
+  //             email: data['email'], // Handle null value
+  //             bio: data['bio'], // Handle null value
+  //             photo: data['photo'], // Handle null value
+  //             phone: data['phone'], // Handle null value
+  //             uid: data['uid'], // Handle null value
+  //           );
+
+  //           setState(() {
+  //             userlist.add(userdata);
+  //           });
+  //         }
+  //       }
+  //     } else {
+  //       Fluttertoast.showToast(msg: "No data found");
+  //     }
+  //     return userlist;
+  //   } catch (e) {
+  //     Fluttertoast.showToast(msg: e.toString());
+  //     return [];
+  //   }
+  // }
 
   void _filterItems(String query) {
     query = query.toLowerCase();
+    setState(() {
+      filtedContacts.clear();
+    });
     if (query.isEmpty) {
       setState(() {
-        searchname.clear();
-        searchname = userlist;
+        _contactController.userlist;
       });
     } else {
+      List<Details> filteredList = [];
+      filteredList.addAll(
+        _contactController.userlist.where(
+          (item) =>
+              item.name!.toLowerCase().contains(query.toLowerCase()) ||
+              item.phone!.contains(query),
+        ),
+      );
       setState(() {
-        searchname = userlist
-            .where((item) =>
-                item.name.toLowerCase().contains(query) ||
-                item.phone.toLowerCase().contains(query))
-            .toList();
+        filtedContacts = filteredList;
       });
     }
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getContact().whenComplete(() {
-      setState(() {
-        getUserDetails();
-      });
-    });
-  }
-
-  Future getContact() async {
-    if (await FlutterContacts.requestPermission()) {
-      contacts = await FlutterContacts.getContacts(
-          withProperties: true, withPhoto: true);
-      for (int i = 0; i < contacts.length; i++) {
-        if (contacts[i].phones.isEmpty ||
-            contacts[i].phones[0].normalizedNumber.length < 10) continue;
-        //print(contacts[i]);
-        phno.add(contacts[i].phones[0].normalizedNumber.substring(3));
-        contactname.add(contacts[i].displayName);
-      }
-    }
-  }
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   _contactController.getContact().whenComplete(() {
+  //     setState(() {
+  //       _contactController.getUserDetails();
+  //     });
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          children: [
-            appbartitle,
-          ],
+        foregroundColor: Colors.white,
+        backgroundColor: appColor,
+        title: Text(
+          'Contacts select',
+          style: TextStyle(
+              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-                onPressed: () {
-                  setState(() {
-                    if (this.searchicon.icon == Icons.search) {
-                      this.searchicon = Icon(Icons.cancel);
-                      this.appbartitle = TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            open = true;
-                            notopen = true;
-                          });
-                          _filterItems(value);
-                        },
-                        autofocus: true,
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Search name or number..."),
-                        style: TextStyle(color: Colors.white, fontSize: 17.0),
-                      );
-                    } else {
-                      this.searchicon = Icon(
-                        Icons.search,
-                        // size: 5,
-                      );
-                      this.appbartitle = Text(
-                        "Contacts",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, letterSpacing: 0.6),
-                      );
-                    }
-                  });
-                },
-                icon: searchicon),
-          )
-        ],
-        elevation: 0,
       ),
       body: Column(children: [
-        if (notopen == false)
-          Expanded(
-            child: Container(
-                width: MediaQuery.of(context).size.width,
-                color: Color.fromARGB(255, 60, 72, 79),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: userlist.isNotEmpty
-                    ? ListView.builder(
-                        physics: BouncingScrollPhysics(),
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            margin: EdgeInsets.all(6),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            UserProflieShow(userlist[index]));
-                                  },
-                                  child: userlist[index].photo != ""
-                                      ? CircleAvatar(
-                                          radius: 28,
-                                          child: CachedNetworkImage(
-                                            imageUrl: Myurl.fullurl +
-                                                Myurl.imageurl +
-                                                userlist[index].photo,
-                                            placeholder: (context, url) =>
-                                                const CircularProgressIndicator(),
-                                            imageBuilder:
-                                                (context, imageProvider) {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Colors.white,
-                                                      image: DecorationImage(
-                                                          image:
-                                                              imageProvider)),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        )
-                                      : CircleAvatar(
-                                          radius: 28,
-                                          child: Text(
-                                            userlist[index]
-                                                .name[0]
-                                                .toUpperCase(),
-                                            style: TextStyle(
-                                                fontSize: 28,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ),
-                                ),
-                                Expanded(
-                                  child: ListTile(
-                                    onTap: () {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  IndividualChatPage(
-                                                      userlist[index])));
-                                    },
-                                    title: Text(
-                                      userlist[index].name,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.3,
-                                          color: Colors.white,
-                                          fontSize: 18),
-                                    ),
-                                    subtitle: Text(
-                                      userlist[index].phone,
-                                      style: TextStyle(
-                                          color: Colors.grey, fontSize: 16),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          );
-                        },
-                        itemCount: userlist.length,
-                      )
-                    : Center(
-                        child: SpinKitSpinningLines(
-                        color: Colors.blue,
-                      ))),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: TextField(
+            controller: _searchController,
+            onChanged: (value) {
+              setState(() {
+                _searchController.text = value;
+                isSearch = !isSearch;
+              });
+              _filterItems(value.trim());
+            },
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              // focusedBorder: OutlineInputBorder(
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
+              hintText: 'Search contact',
+              hintStyle: TextStyle(
+                fontSize: 15,
+                color: appColor.withOpacity(0.8),
+              ),
+              suffixIcon: _searchController.text.isEmpty
+                  ? SizedBox()
+                  : IconButton(
+                      onPressed: () {
+                        _searchController.clear();
+                        FocusScope.of(context).unfocus();
+                      },
+                      icon: Icon(Icons.close),
+                    ),
+              prefixIcon: Icon(Icons.search),
+
+              // suffixIcon: Icon(Icons.close),
+            ),
           ),
-        if (open == true)
-          Expanded(
-            child: Container(
-                width: MediaQuery.of(context).size.width,
-                color: Color.fromARGB(255, 60, 72, 79),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: searchname.isNotEmpty
-                    ? ListView.builder(
-                        physics: BouncingScrollPhysics(),
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            margin: EdgeInsets.all(6),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    showDialog(
+        ),
+        Expanded(
+          child: Obx(
+            () => Container(
+              width: MediaQuery.of(context).size.width,
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: _contactController.userlist.isNotEmpty
+                  ? _searchController.text.isNotEmpty && filtedContacts.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No contact found for "${_searchController.text}"',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: _searchController.text.isEmpty
+                              ? _contactController.userlist.length
+                              : filtedContacts.length,
+                          physics: BouncingScrollPhysics(),
+                          itemBuilder: (BuildContext context, int index) {
+                            if (_contactController.userlist.isEmpty) {
+                              return Center(
+                                child: Text('No User Found'),
+                              );
+                            }
+                            final contacts = _searchController.text.isEmpty
+                                ? _contactController.userlist[index]
+                                : filtedContacts[index];
+                            return Container(
+                              margin: EdgeInsets.all(6),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      showDialog(
                                         context: context,
                                         builder: (context) =>
-                                            UserProflieShow(searchname[index]));
-                                  },
-                                  child: searchname[index].photo != ""
-                                      ? CircleAvatar(
-                                          radius: 28,
-                                          child: CachedNetworkImage(
-                                            imageUrl: Myurl.fullurl +
-                                                Myurl.imageurl +
-                                                searchname[index].photo,
-                                            placeholder: (context, url) =>
-                                                const CircularProgressIndicator(),
-                                            imageBuilder:
-                                                (context, imageProvider) {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(4),
-                                                child: Container(
-                                                  decoration: BoxDecoration(
+                                            UserProflieShow(contacts),
+                                      );
+                                    },
+                                    child: contacts.photo!.isNotEmpty
+                                        ? CircleAvatar(
+                                            radius: 28,
+                                            child: CachedNetworkImage(
+                                              imageUrl: contacts.photo!,
+                                              placeholder: (context, url) =>
+                                                  const CircularProgressIndicator(),
+                                              imageBuilder:
+                                                  (context, imageProvider) {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(4),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
                                                       color: Colors.white,
                                                       image: DecorationImage(
-                                                          image:
-                                                              imageProvider)),
-                                                ),
-                                              );
-                                            },
+                                                          image: imageProvider),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          )
+                                        : CircleAvatar(
+                                            radius: 25,
+                                            child: Icon(Icons.person),
                                           ),
-                                        )
-                                      : CircleAvatar(
-                                          radius: 28,
-                                          child: Text(
-                                            searchname[index]
-                                                .name[0]
-                                                .toUpperCase(),
-                                            style: TextStyle(
-                                                fontSize: 28,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                        ),
-                                ),
-                                Expanded(
-                                  child: ListTile(
-                                    onTap: () {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  IndividualChatPage(
-                                                      searchname[index])));
-                                    },
-                                    title: Text(
-                                      searchname[index].name,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.3,
-                                          color: Colors.white,
-                                          fontSize: 18),
-                                    ),
-                                    subtitle: Text(
-                                      searchname[index].phone,
-                                      style: TextStyle(
-                                          color: Colors.grey, fontSize: 16),
-                                    ),
                                   ),
-                                )
-                              ],
-                            ),
-                          );
-                        },
-                        itemCount: searchname.length,
-                      )
-                    : Center(
-                        child: Text(
-                          'Not Found',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
+                                  Expanded(
+                                    child: ListTile(
+                                      onTap: () {
+                                        String? roomId = msgControler
+                                            .getRoomId(contacts.uid!);
+
+                                        Get.off(
+                                            () => IndividualChatPage(contacts));
+                                      },
+                                      title: Row(
+                                        children: [
+                                          Text(
+                                            contacts.name!,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 17),
+                                          ),
+                                          Spacer(),
+                                          contacts.uid ==
+                                                  msgControler
+                                                      .auth.currentUser!.uid
+                                              ? AutoSizeText(
+                                                  'You',
+                                                  style: TextStyle(
+                                                      fontSize: 8,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: appColor),
+                                                )
+                                              : AutoSizeText(''),
+                                        ],
+                                      ),
+                                      subtitle: contacts.uid ==
+                                              msgControler.auth.currentUser!.uid
+                                          ? AutoSizeText(
+                                              'Message yourself',
+                                              style: TextStyle(
+                                                color: Colors.black45,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 8,
+                                              ),
+                                            )
+                                          : AutoSizeText(
+                                              contacts.phone!,
+                                              style: TextStyle(
+                                                color: Colors.black45,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                        )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SpinKitSpinningLines(
+                          lineWidth: 3,
+                          color: appColor,
+                          size: 50,
                         ),
-                      )),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Text(
+                          'Please wait...',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w500),
+                        )
+                      ],
+                    ),
+            ),
           ),
+        ),
       ]),
     );
   }

@@ -1,44 +1,37 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:flutter_application_2/pages/first.dart';
-import 'package:flutter_application_2/pages/login_form.dart';
-import 'package:flutter_application_2/pages/varified_chat.dart';
-
-import 'package:flutter_application_2/pages/User_Details_Model.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_application_2/main.dart';
+import 'package:flutter_application_2/pages/AuthenticatedUser/UserLoginSignup/varified_chat.dart';
 
 class MyForm extends StatefulWidget {
-  // const MyForm({super.key});
-  // Details detailsobj;
-  // MyForm(this.detailsobj);
-
   @override
   State<MyForm> createState() => _MyFormState();
 }
 
 class _MyFormState extends State<MyForm> {
-  // Details detailsobj;
-  // _MyFormState(this.detailsobj);
-  // ignore: prefer_typing_uninitialized_variables
   var colors;
   var colorizeTextStyle;
   final ButtonStyle btn = ElevatedButton.styleFrom(
       // primary: Colors.green,
       elevation: 0,
+      backgroundColor: appColor,
       shape: const BeveledRectangleBorder(
           borderRadius: BorderRadius.all(Radius.elliptical(10, 50))));
   final ButtonStyle btn2 = ElevatedButton.styleFrom(
       // primary: const Color.fromARGB(255, 255, 7, 7),
       elevation: 0,
+      backgroundColor: appColor,
       shape: const BeveledRectangleBorder(
           borderRadius: BorderRadius.all(Radius.elliptical(10, 50))));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF111B21),
+      // backgroundColor: const Color(0xFF111B21),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Column(
@@ -52,7 +45,7 @@ class _MyFormState extends State<MyForm> {
                       animatedTexts: [
                         ColorizeAnimatedText("Welcome To DPChat",
                             textStyle: const TextStyle(
-                                fontSize: 28,
+                                fontSize: 17,
                                 fontWeight: FontWeight.w700,
                                 fontFamily: 'PangolinRegular'),
                             speed: const Duration(seconds: 1),
@@ -73,35 +66,42 @@ class _MyFormState extends State<MyForm> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: 290,
-                height: 290,
-                child: Image.asset("assets/image/chatimage.png"),
+              Opacity(
+                opacity: 0.8,
+                child: SizedBox(
+                  width: 290,
+                  height: 290,
+                  child: Image.asset("assets/image/chatimage.png"),
+                ),
               ),
               const SizedBox(
                 height: 80,
               ),
               Container(
-                margin: const EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
                 child: RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
-                        text: 'Read our ',
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    text: 'Read our ',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 13,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: 'Privacy Policy.',
                         style: TextStyle(
-                          fontSize: 15,
+                          color: appColor,
                         ),
-                        children: [
-                          TextSpan(
-                              text: 'Privacy Policy.',
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 89, 132, 206))),
-                          TextSpan(
-                              text: '  Tap "Agree and continue" to accept the'),
-                          TextSpan(
-                              text: 'Terms of Service',
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 89, 132, 206)))
-                        ])),
+                      ),
+                      TextSpan(text: ' Tap "AGREE AND CONTINUE" to accept the'),
+                      TextSpan(
+                        text: ' Terms of Service',
+                        style: TextStyle(color: appColor),
+                      )
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(
                 height: 60,
@@ -113,15 +113,19 @@ class _MyFormState extends State<MyForm> {
                 ),
                 child: ElevatedButton(
                   style: btn,
-                  child: const Text(
+                  child: Text(
                     'AGREE AND CONTINUE',
-                    style: TextStyle(fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.greenAccent),
                   ),
                   onPressed: () {
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => VerfiedAccount()));
+                          builder: (context) => VerfiedAccount(),
+                        ));
                   },
                 ),
               ),
@@ -137,7 +141,10 @@ class _MyFormState extends State<MyForm> {
                   style: btn2,
                   child: const Text(
                     'RESTORE BACKUP',
-                    style: TextStyle(fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.redAccent),
                   ),
                   onPressed: () {
                     print("Button");

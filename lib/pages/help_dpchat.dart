@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_application_2/main.dart';
 
 class HelpUser extends StatefulWidget {
   const HelpUser({super.key});
@@ -17,9 +17,9 @@ class _HelpUserState extends State<HelpUser> {
         title: const Text(
           'Problem Dectected',
           style: TextStyle(
-              fontSize: 20, letterSpacing: 0.5, fontWeight: FontWeight.bold),
+              color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
         ),
-        backgroundColor: const Color.fromARGB(255, 18, 33, 35),
+        backgroundColor: appColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(35),
@@ -53,9 +53,9 @@ class _HelpUserState extends State<HelpUser> {
               ),
               Container(
                 margin: const EdgeInsets.only(left: 25),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       "1.Choose your country from country list. This will automatically fill the country code.",
                       style: TextStyle(
@@ -78,7 +78,7 @@ class _HelpUserState extends State<HelpUser> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 15,
               ),
               const Text(
